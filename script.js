@@ -104,3 +104,38 @@ function showImage() {
     const weatherIcon = document.getElementById('weather-icon');
 }
 }
+
+function getCurrentLocationWeather() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            fetchWeatherByCoords(lat, lon);
+        }, function(error) {
+            alert("Unable to retrieve your location due to " + error.message);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+function fetchWeatherByCoords(lat, lon) {
+    const apiKey = '2fac1a8c2109fc052015aa7336b85953';
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            updateWeatherUI(data);
+        })
+        .catch(error => {
+            alert("An error occurred: " + error.message);
+        });
+}
+
+function updateWeatherUI(data) {
+    document.getElementById('temp-div').innerText = `Temperature: ${data.main.temp}°C`;
+    document.getElementById('weather-info').innerText = `Weather: ${data.weather[0].description}`;
+    document.getElementById('weather-icon').src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    document.getElementById('weather-info').innerHTML += `<br>You are located in: ${data.name}`;
+}
